@@ -1,0 +1,25 @@
+server:
+  port : 8081
+
+spring:
+  datasource :
+    url: jdbc:oracle:thin:@localhost:1521:orcl
+    username: ecommerce_user
+    password: ecommerce_password
+    driver-class-name: oracle.jdbc.OracleDriver
+  jpa:
+    database-plateform: org.hibernate.dialect.Oracle12cDialect
+    hibernate:
+      ddl-auto: update
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/ecommerce-realm
+keycloak:
+  auth-server-url: http://localhost:8080
+  realm: ecommerce-realm
+  resource: ecommerce-client
+  credentials:
+    secret: your-client-secret
+  use-resource-role-mappings: true
