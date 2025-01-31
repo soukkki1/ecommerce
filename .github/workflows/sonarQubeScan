@@ -1,0 +1,6 @@
+- name: SonarQube Scan
+        run: mvn sonar:sonar
+        env:
+          SONAR_HOST_URL: http://localhost:9000
+          SONAR_LOGIN: admin
+          SONAR_PASSWORD: admin
