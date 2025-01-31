@@ -1,0 +1,32 @@
+name: SonarQube Analysis
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sonar:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout Code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set Up JDK
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+
+      # Step 3: Build with Maven
+      - name: Build with Maven
+        run: mvn clean install
+
+      # Step 4: Run SonarQube Scan
+      - name: SonarQube Scan
+        run: mvn sonar:sonar
+        env:
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_LOGIN: ${{ secrets.SONAR_LOGIN }}
+          SONAR_PASSWORD: ${{ secrets.SONAR_PASSWORD }}
