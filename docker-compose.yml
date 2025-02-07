@@ -1,15 +1,16 @@
-version: "3.8"
-
 services:
-  #i will use my own oracle
-  #oracle-db:
-    #image: gvenzl/oracle-xe:latest
-    #container_name: oracle-db
-    #environment:
-    #  - ORACLE_PASSWORD=ecommerce_password
-    #  - ORACLE_DATABASE=ecommerce
-    #ports:
-     # - "1521:1521"
+  ecommerce-db:
+    image: postgres:latest
+    container_name: ecommerce-db
+    environment:
+      POSTGRES_USER: ecommerce
+      POSTGRES_PASSWORD: ecommerce
+      POSTGRES_DB: ecommerce
+    ports:
+      - "5434:5432"
+    volumes:
+      - ecommerce_data:/var/lib/postgresql/data
+
   sonarqube:
     image: sonarqube:latest
     container_name: sonarqube
@@ -21,26 +22,45 @@ services:
       - SONAR_JDBC_PASSWORD=sonar
 
   sonar-postgres:
-      image: postgres:latest
-      container_name: sonar-postgres
-      environment:
-        POSTGRES_USER: sonar
-        POSTGRES_PASSWORD: sonar
-        POSTGRES_DB: sonar
-      ports:
-        - "5432:5432"
+    image: postgres:latest
+    container_name: sonar-postgres
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+      POSTGRES_DB: sonar
+    ports:
+      - "5432:5432"
+
   redis:
     image: redis:latest
     container_name: redis-cache
     ports:
       - "6379:6379"
 
+  keycloak-db:
+    image: postgres:latest
+    container_name: keycloak-db
+    environment:
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+      POSTGRES_DB: keycloak
+    volumes:
+      - keycloak_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
   keycloak:
     image: quay.io/keycloak/keycloak:22.0
     container_name: keycloak
-    command: start-dev
+    command: start-dev --db=postgres --db-url=jdbc:postgresql://keycloak-db:5432/keycloak --db-username=keycloak --db-password=keycloak
     environment:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
     ports:
       - "8080:8080"
+    depends_on:
+      - keycloak-db
+
+volumes:
+  keycloak_data:
+  ecommerce_data:

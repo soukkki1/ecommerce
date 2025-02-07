@@ -106,6 +106,17 @@
 					</excludes>
 				</configuration>
 			</plugin>
+
+			<plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<version>9.22.3</version>  <!-- Use latest Flyway version -->
+				<configuration>
+					<url>jdbc:postgresql://localhost:5434/ecommerce</url>
+					<user>ecommerce</user>
+					<password>ecommerce</password>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
