@@ -3,10 +3,10 @@ server:
 spring:
   application:
     name: gateway
-  datasource :
-    url: jdbc:postgresql://localhost:5434/ecommerce  # Change database name as needed
-    username: ecommerce
-    password: ecommerce
+  datasource:
+    url: jdbc:postgresql://localhost:5434/ecommerce
+    username: ${db.username}
+    password: ${db.password}
     driver-class-name: org.postgresql.Driver
   jpa:
     database-plateform: org.hibernate.dialect.PostgreSQLDialect
@@ -19,6 +19,13 @@ spring:
     out-of-order: true
     validateMigrationNaming: true
   cloud:
+    vault:
+      uri: http://localhost:8200
+      token: hvs.DE1RjALM3efDnV0XrmwvPO18
+      kv:
+        enabled: true
+        backend: secret
+        application-name: ${spring.application.name}
     gateway:
       routes:
         - id: user-service
@@ -50,5 +57,5 @@ spring:
           ecommerce-client:
             provider: keycloak
             client-id: ecommerce-client
-            client-secret: sxQZ9AJcnnEcYMB2QJftnqOQG58021SP
+            client-secret: ${keycloack.client.secret}
             authorization-grant-type: client_credentials
