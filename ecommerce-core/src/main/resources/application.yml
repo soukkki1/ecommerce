@@ -1,4 +1,8 @@
+server:
+  port: 8085
 spring:
+  application:
+    name: gateway
   datasource :
     url: jdbc:postgresql://localhost:5434/ecommerce  # Change database name as needed
     username: ecommerce
@@ -14,3 +18,37 @@ spring:
     locations: classpath:db/migration
     out-of-order: true
     validateMigrationNaming: true
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/ecommerce/users/**
+          filters:
+            - TokenRelay
+
+        - id: product-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/ecommerce/products/**
+          filters:
+            - TokenRelay
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/ecommerce-realm
+          jwk-set-uri: http://localhost:8080/realms/ecommerce-realm/protocol/openid-connect/certs
+
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8080/realms/ecommerce-realm
+            jwk-set-uri: http://localhost:8080/realms/ecommerce-realm/protocol/openid-connect/certs
+        registration:
+          ecommerce-client:
+            provider: keycloak
+            client-id: ecommerce-client
+            client-secret: sxQZ9AJcnnEcYMB2QJftnqOQG58021SP
+            authorization-grant-type: client_credentials
