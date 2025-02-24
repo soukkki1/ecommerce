@@ -3,14 +3,14 @@ server:
 
 spring:
   datasource :
-    url: jdbc:oracle:thin:@localhost:1521:orcl
-    username: ecommerce_user
-    password: ecommerce_password
-    driver-class-name: oracle.jdbc.OracleDriver
+    url: jdbc:postgresql://localhost:5434/ecommerce  # Change database name as needed
+    username: ecommerce
+    password: ecommerce
+    driver-class-name: org.postgresql.Driver
   jpa:
-    database-plateform: org.hibernate.dialect.Oracle12cDialect
+    database-plateform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
   security:
     oauth2:
       resourceserver:
@@ -21,5 +21,5 @@ keycloak:
   realm: ecommerce-realm
   resource: ecommerce-client
   credentials:
-    secret: your-client-secret
+    secret: sxQZ9AJcnnEcYMB2QJftnqOQG58021SP
   use-resource-role-mappings: true
