@@ -36,3 +36,7 @@ spring:
 logging:
   level:
     org.springframework.cache: trace
+
+clamav:
+  host: localhost
+  port: 3310

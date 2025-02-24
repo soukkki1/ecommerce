@@ -65,6 +65,20 @@ services:
     ports:
       - "5433:5432"
 
+  clamav:
+    image: clamav/clamav
+    container_name: clamav
+    restart: always
+    ports:
+      - "3310:3310"  # ClamAV listens on port 3310
+    environment:
+      - CLAMD_CONF_MaxFileSize=25M  # Allow scanning up to 25MB files
+    healthcheck:
+      test: [ "CMD", "clamdscan", "--version" ]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+
   keycloak:
     image: quay.io/keycloak/keycloak:22.0
     container_name: keycloak
@@ -76,6 +90,10 @@ services:
       - "8080:8080"
     depends_on:
       - keycloak-db
+
+networks:
+  default:
+    name: ecommerce-network
 
 volumes:
   keycloak_data:
