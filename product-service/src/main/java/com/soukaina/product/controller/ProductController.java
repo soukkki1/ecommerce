@@ -34,5 +34,10 @@ public class ProductController {
         return productService.getProductById(id);
     }
 
+    @GetMapping("/clear-cache")
+    public String clearCache() {
+        productService.clearCache();
+        return "Cache cleared!";
+    }
 
 }
