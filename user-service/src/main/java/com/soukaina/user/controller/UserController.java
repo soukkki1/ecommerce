@@ -21,12 +21,16 @@ public class UserController {
             return "No authentication found!";
         }
 
+        System.out.println("Authentication Object: " + authentication);
+
         if (authentication instanceof JwtAuthenticationToken) {
             JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) authentication;
-            return "User roles: " + jwtAuth.getAuthorities().stream()
+            String roles = jwtAuth.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
-                    .collect(Collectors.joining(", "))
-                    + " | Claims: " + jwtAuth.getTokenAttributes();
+                    .collect(Collectors.joining(", "));
+
+            System.out.println("Extracted Roles: " + roles);
+            return "User roles: " + roles + " | Claims: " + jwtAuth.getTokenAttributes();
         }
 
         return "User roles: " + authentication.getAuthorities().stream()
@@ -39,13 +43,13 @@ public class UserController {
         return "This is a public endpoint!";
     }
 
-    //@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('ADMIN')")
     @GetMapping("/user")
     public String userEndpoint() {
         return "Hello User!";
     }
 
-    //@PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/admin")
     public String adminEndpoint() {
         return "Hello Admin!";

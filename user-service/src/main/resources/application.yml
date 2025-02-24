@@ -2,6 +2,8 @@ server:
   port : 8081
 
 spring:
+  profiles:
+    active: dev
   cloud:
     vault:
       uri: http://localhost:8200
@@ -10,9 +12,9 @@ spring:
       kv:
         enabled: true
   datasource :
-    url: jdbc:postgresql://localhost:5434/ecommerce ${vault}
-    username: ${vault:secret/ecommerce-db/username}
-    password: ${vault:secret/ecommerce-db/password}
+    url: jdbc:postgresql://localhost:5434/ecommerce
+    username: ecommerce
+    password: ecommerce
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
@@ -27,10 +29,11 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8080/realms/ecommerce-realm
+          jwk-set-uri: http://localhost:8080/realms/ecommerce-realm/protocol/openid-connect/certs
 keycloak:
   auth-server-url: http://localhost:8080
   realm: ecommerce-realm
   resource: ecommerce-client
   credentials:
     secret: sxQZ9AJcnnEcYMB2QJftnqOQG58021SP
-  use-resource-role-mappings: true
+  use-resource-role-mappings: false

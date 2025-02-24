@@ -1,4 +1,21 @@
 services:
+  ecommerce-core:
+    build: ./ecommerce-core
+    ports:
+      - "8085:8085"
+    depends_on:
+      - product-service
+      - user-service
+
+  product-service:
+    build: ./product-service
+    ports:
+      - "8082:8082"
+
+  user-service:
+    build: ./user-service
+    ports:
+      - "8081:8081"
   ecommerce-db:
     image: postgres:latest
     container_name: ecommerce-db
@@ -49,8 +66,11 @@ services:
   redis:
     image: redis:latest
     container_name: redis-cache
+    restart: always
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
 
   keycloak-db:
     image: postgres:latest
@@ -80,3 +100,4 @@ volumes:
   keycloak_data:
   ecommerce_data:
   vault_data:
+  redis_data:
