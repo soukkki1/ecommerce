@@ -11,6 +11,21 @@ services:
     volumes:
       - ecommerce_data:/var/lib/postgresql/data
 
+  vault:
+    image: hashicorp/vault:1.14.0
+    container_name: ecommerce-vault
+    restart: always
+    ports:
+      - "8200:8200"
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: "root"
+      VAULT_ADDR: "http://127.0.0.1:8200"
+    cap_add:
+      - IPC_LOCK
+    entrypoint: vault server -dev -dev-root-token-id="root" -dev-listen-address="0.0.0.0:8200"
+    volumes:
+      - vault_data:/vault/file
+
   sonarqube:
     image: sonarqube:latest
     container_name: sonarqube
@@ -64,3 +79,4 @@ services:
 volumes:
   keycloak_data:
   ecommerce_data:
+  vault_data:

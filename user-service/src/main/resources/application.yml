@@ -2,13 +2,24 @@ server:
   port : 8081
 
 spring:
+  cloud:
+    vault:
+      uri: http://localhost:8200
+      authentication: TOKEN
+      token: root
+      kv:
+        enabled: true
   datasource :
-    url: jdbc:postgresql://localhost:5434/ecommerce  # Change database name as needed
-    username: ecommerce
-    password: ecommerce
+    url: jdbc:postgresql://localhost:5434/ecommerce ${vault}
+    username: ${vault:secret/ecommerce-db/username}
+    password: ${vault:secret/ecommerce-db/password}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+  flyway:
+    enabled: false
   jpa:
-    database-plateform: org.hibernate.dialect.PostgreSQLDialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: validate
   security:
