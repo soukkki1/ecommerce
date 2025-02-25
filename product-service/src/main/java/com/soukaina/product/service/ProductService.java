@@ -1,8 +1,10 @@
 package com.soukaina.product.service;
 
+import com.soukaina.product.model.Category;
 import com.soukaina.product.model.Product;
+import com.soukaina.product.repository.CategoryRepository;
 import com.soukaina.product.repository.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -11,9 +13,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import xyz.capybara.clamav.ClamavClient;
+import xyz.capybara.clamav.commands.scan.result.ScanResult;
+import xyz.capybara.clamav.exceptions.ClamavException;
 
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -25,10 +31,15 @@ import java.util.UUID;
 public class ProductService {
     private final ProductRepository productRepository;
     private final Path uploadDir = Paths.get("uploads");
+    private final CategoryRepository categoryRepository;
+    private final ClamavClient clamavClient;
 
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, @Value("${clamav.host}") String clamavHost,
+                          @Value("${clamav.port}") int clamavPort) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
+        this.clamavClient = new ClamavClient(clamavHost, clamavPort);
         try {
             Files.createDirectories(uploadDir);
         } catch (IOException e) {
@@ -50,6 +61,11 @@ public class ProductService {
 
 
     public Product createProduct(Product product) {
+        UUID categoryId = product.getCategory().getId();
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        product.setCategory(category);
         return productRepository.save(product);
     }
 
@@ -94,7 +110,16 @@ public class ProductService {
     }
 
 
-    public String saveProductImage(MultipartFile file) throws IOException {
+    public String saveProductImage(MultipartFile file) throws IOException, ClamavException {
+        Path tempFilePath = Files.createTempFile("upload-", file.getOriginalFilename());
+        file.transferTo(tempFilePath);
+        try (InputStream inputStream = Files.newInputStream(tempFilePath)) {
+            ScanResult scanResult = clamavClient.scan(inputStream);
+            if (scanResult == null) {
+                Files.delete(tempFilePath);
+                throw new IOException("Virus detected! File upload rejected.");
+            }
+        }
         Path filePath = uploadDir.resolve(Objects.requireNonNull(file.getOriginalFilename()));
         file.transferTo(filePath);
         return filePath.toString();
