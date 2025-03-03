@@ -1,6 +1,8 @@
 package com.soukaina.product.controller;
 
+import com.soukaina.product.model.Category;
 import com.soukaina.product.model.Product;
+import com.soukaina.product.repository.CategoryRepository;
 import com.soukaina.product.repository.ProductRepository;
 import com.soukaina.product.service.ProductService;
 import org.springframework.data.domain.Page;
@@ -24,7 +26,7 @@ public class ProductController {
 
     private final ProductService productService;
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, CategoryRepository categoryRepository) {
         this.productService = productService;
     }
 
@@ -97,6 +99,12 @@ public class ProductController {
         } catch (ClamavException e) {
             return ResponseEntity.badRequest().body("Virus detected in your file");
         }
+    }
+
+    @PostMapping("/categories")
+    public ResponseEntity<String> addCategory(@RequestBody Category category) {
+        productService.createCategory(category);
+        return ResponseEntity.ok("Category created successfully");
     }
 
 }

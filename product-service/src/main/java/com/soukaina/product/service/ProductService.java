@@ -61,12 +61,16 @@ public class ProductService {
 
 
     public Product createProduct(Product product) {
-        UUID categoryId = product.getCategory().getId();
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+        String nameCategory = product.getCategory().getName();
 
+        Category category = categoryRepository.findByName(nameCategory)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
         product.setCategory(category);
         return productRepository.save(product);
+    }
+
+    public Category createCategory(Category category) {
+        return categoryRepository.save(category);
     }
 
     public Product updateProduct(UUID id, Product updatedProduct) {

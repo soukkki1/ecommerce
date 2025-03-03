@@ -13,6 +13,10 @@
 		<module>ecommerce-core</module>
 		<module>user-service</module>
 		<module>product-service</module>
+		<module>cart-service</module>
+		<module>order-service</module>
+		<module>checkout-service</module>
+		<module>payment-service</module>
 	</modules>
 
 	<properties>
