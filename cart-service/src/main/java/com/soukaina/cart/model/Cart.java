@@ -22,4 +22,9 @@ public class Cart implements Serializable {
     @OneToMany(mappedBy = "cart", cascade=CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> items;
 
+    public double getTotalPrice() {
+        return items.stream()
+                .mapToDouble(item -> item.getPrice() * item.getQuantity())
+                .sum();
+    }
 }
