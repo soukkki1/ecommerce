@@ -1,21 +1,4 @@
 services:
-  ecommerce-core:
-    build: ./ecommerce-core
-    ports:
-      - "8085:8085"
-    depends_on:
-      - product-service
-      - user-service
-
-  product-service:
-    build: ./product-service
-    ports:
-      - "8082:8082"
-
-  user-service:
-    build: ./user-service
-    ports:
-      - "8081:8081"
   ecommerce-db:
     image: postgres:latest
     container_name: ecommerce-db
@@ -35,13 +18,11 @@ services:
     ports:
       - "8200:8200"
     environment:
-      VAULT_DEV_ROOT_TOKEN_ID: "root"
       VAULT_ADDR: "http://127.0.0.1:8200"
-    cap_add:
-      - IPC_LOCK
-    entrypoint: vault server -dev -dev-root-token-id="root" -dev-listen-address="0.0.0.0:8200"
+    command: ["vault", "server", "-config=/vault/config/vault.hcl"]
     volumes:
-      - vault_data:/vault/file
+      - ./vault.hcl:/vault/config/vault.hcl
+      - vault_data:/vault/data
 
   sonarqube:
     image: sonarqube:latest
@@ -84,6 +65,20 @@ services:
     ports:
       - "5433:5432"
 
+  clamav:
+    image: clamav/clamav
+    container_name: clamav
+    restart: always
+    ports:
+      - "3310:3310"  # ClamAV listens on port 3310
+    environment:
+      - CLAMD_CONF_MaxFileSize=25M  # Allow scanning up to 25MB files
+    healthcheck:
+      test: [ "CMD", "clamdscan", "--version" ]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+
   keycloak:
     image: quay.io/keycloak/keycloak:22.0
     container_name: keycloak
@@ -96,8 +91,12 @@ services:
     depends_on:
       - keycloak-db
 
+networks:
+  default:
+    name: ecommerce-network
+
 volumes:
   keycloak_data:
   ecommerce_data:
-  vault_data:
   redis_data:
+  vault_data:

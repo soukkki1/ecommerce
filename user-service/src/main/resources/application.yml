@@ -2,24 +2,23 @@ server:
   port : 8081
 
 spring:
-  profiles:
-    active: dev
+  application:
+    name: user-service
   cloud:
     vault:
       uri: http://localhost:8200
-      authentication: TOKEN
-      token: root
+      token: hvs.DE1RjALM3efDnV0XrmwvPO18
       kv:
         enabled: true
-  datasource :
+        backend: secret
+        application-name: ${spring.application.name}
+  flyway:
+    enabled: false
+  datasource:
     url: jdbc:postgresql://localhost:5434/ecommerce
     username: ecommerce
     password: ecommerce
     driver-class-name: org.postgresql.Driver
-    hikari:
-      maximum-pool-size: 10
-  flyway:
-    enabled: false
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -30,10 +29,3 @@ spring:
         jwt:
           issuer-uri: http://localhost:8080/realms/ecommerce-realm
           jwk-set-uri: http://localhost:8080/realms/ecommerce-realm/protocol/openid-connect/certs
-keycloak:
-  auth-server-url: http://localhost:8080
-  realm: ecommerce-realm
-  resource: ecommerce-client
-  credentials:
-    secret: sxQZ9AJcnnEcYMB2QJftnqOQG58021SP
-  use-resource-role-mappings: false
