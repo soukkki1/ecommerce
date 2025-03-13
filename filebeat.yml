@@ -1,0 +1,15 @@
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - "/host_logs/app.log"
+    multiline:
+      pattern: '^\s*\['
+      negate: true
+      match: after
+
+output.logstash:
+  hosts: ["logstash:5044"]
+
+processors:
+  - add_host_metadata: ~

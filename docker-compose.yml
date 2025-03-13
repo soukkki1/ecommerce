@@ -91,6 +91,73 @@ services:
     depends_on:
       - keycloak-db
 
+  # Elasticsearch for storing logs and traces
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.4
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - xpack.security.enabled=false  # Disable security
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+  # Logstash for collecting and processing logs
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.4
+    container_name: logstash
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    ports:
+      - "5000:5000"  # Port for receiving logs from Spring Boot
+      - "5044:5044"  # Logstash Filebeat input
+      - "9600:9600"  # Logstash monitoring API
+    depends_on:
+      - elasticsearch
+
+  # Kibana for visualizing logs
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.4
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    volumes:
+      - kibana_data:/usr/share/kibana/data
+
+  # APM Server for performance monitoring & tracing
+  apm-server:
+    image: docker.elastic.co/apm/apm-server:8.11.4
+    container_name: apm-server
+    environment:
+      - setup.kibana.host=kibana:5601
+      - kibana.enabled=true
+      - kibana.host=kibana:5601
+      - output.elasticsearch.hosts=["elasticsearch:9200"]
+    ports:
+      - "8201:8200"
+    depends_on:
+      - elasticsearch
+    links:
+      - elasticsearch
+      - kibana
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.11.4
+    container_name: filebeat
+    user: root
+    volumes:
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:rw
+      - C:/okokok/ecommerce-app/logs:/host_logs:ro
+    command: ["--strict.perms=false"]
+    depends_on:
+      - logstash
+
 networks:
   default:
     name: ecommerce-network
@@ -100,3 +167,7 @@ volumes:
   ecommerce_data:
   redis_data:
   vault_data:
+  kibana_data:
+    driver: local
+  elasticsearch_data:
+    driver: local

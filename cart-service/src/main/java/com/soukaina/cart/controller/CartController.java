@@ -9,6 +9,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.UUID;
 
@@ -16,6 +18,9 @@ import java.util.UUID;
 @RequestMapping("/ecommerce/cart")
 @RequiredArgsConstructor
 public class CartController {
+
+    private static final Logger logger = LogManager.getLogger(CartController.class);
+
     private final CartService cartService;
 
     private UUID extractUserId(Jwt jwt) {
@@ -25,6 +30,7 @@ public class CartController {
     @GetMapping
     public Cart getCart(@AuthenticationPrincipal Jwt jwt) {
         UUID userId = extractUserId(jwt);
+        logger.info("getCart from userId {}", userId);
         return cartService.getCart(userId);
     }
 
