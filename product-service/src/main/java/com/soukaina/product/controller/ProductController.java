@@ -1,6 +1,8 @@
 package com.soukaina.product.controller;
 
+import com.soukaina.product.model.Category;
 import com.soukaina.product.model.Product;
+import com.soukaina.product.repository.CategoryRepository;
 import com.soukaina.product.repository.ProductRepository;
 import com.soukaina.product.service.ProductService;
 import org.springframework.data.domain.Page;
@@ -10,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import xyz.capybara.clamav.exceptions.ClamavException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,7 +26,7 @@ public class ProductController {
 
     private final ProductService productService;
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, CategoryRepository categoryRepository) {
         this.productService = productService;
     }
 
@@ -37,9 +40,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.getAllProducts(pageable));
     }
 
-
-// CRUD operations for Product
-
+    // CRUD operations for Product
     @PostMapping
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {
         Product savedProduct = productService.createProduct(product);
@@ -95,7 +96,15 @@ public class ProductController {
             return ResponseEntity.ok("File uploaded successfully: " + filePath);
         } catch (IOException e) {
             return ResponseEntity.badRequest().body("File upload failed");
+        } catch (ClamavException e) {
+            return ResponseEntity.badRequest().body("Virus detected in your file");
         }
+    }
+
+    @PostMapping("/categories")
+    public ResponseEntity<String> addCategory(@RequestBody Category category) {
+        productService.createCategory(category);
+        return ResponseEntity.ok("Category created successfully");
     }
 
 }

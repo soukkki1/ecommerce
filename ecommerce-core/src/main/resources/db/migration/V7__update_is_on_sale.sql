@@ -1,0 +1,1 @@
+ALTER TABLE products RENAME COLUMN is_on_sale TO on_sale

@@ -1,13 +1,15 @@
 package com.soukaina.product.model;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.UUID;
 @Entity
 @Table(name = "products")
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
-public class Product {
+public class Product implements Serializable {
 
     @Id
     @GeneratedValue
@@ -28,5 +30,5 @@ public class Product {
     @Column
     private double discountPrice;
     @Column
-    private boolean isOnSale;
+    private boolean onSale;
 }

@@ -1,0 +1,52 @@
+server:
+  port: 8086
+  error:
+    include-message: always
+    include-binding-errors: always
+spring:
+  application:
+    name: cart-service
+  datasource:
+    url: jdbc:postgresql://localhost:5434/ecommerce
+    username: ecommerce
+    password: ecommerce
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 10
+      idle-timeout: 30000
+      max-lifetime: 50000  # Set lower than DB timeout
+      keepalive-time: 25000  # Ensures connections are refreshed
+      connection-timeout: 20000
+  cloud:
+    vault:
+      uri: http://localhost:8200
+      token: hvs.DE1RjALM3efDnV0XrmwvPO18
+      kv:
+        enabled: true
+        backend: secret
+        application-name: gateway
+  cache:
+    type: redis
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/ecommerce-realm
+          jwk-set-uri: http://localhost:8080/realms/ecommerce-realm/protocol/openid-connect/certs
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 6000
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+logging:
+  level:
+    org.springframework.cache: trace
+
+clamav:
+  host: localhost
+  port: 3310
